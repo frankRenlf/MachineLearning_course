@@ -77,13 +77,14 @@ class MLP:
             # backward phase
             # Compute the derivative of the output layer. NOTE: you will need to compute the derivative of
             deltao = self.outputs * (1 - self.outputs) * (self.outputs - targets)
-            tmp = deltao
+            tmp = 2
             deltah2 = self.deltaSigmoid(self.hidden2, deltao, self.weights3) * self.beta
-            tmp = tmp * 2.0
+            tmp = 2.0
             deltah1 = (np.dot(deltah2[:, :-1], np.transpose(self.weights2))) * self.beta * self.hidden1 * (
                     1.0 - self.hidden1)
-            tmp = tmp * 3.0
+            tmp = 3.0
             updatew1 = self.updateWeights(updatew1, inputs, deltah1, eta, self.momentum)
+            tmp = tmp
             updatew2 = self.updateWeights(updatew2, self.hidden1, deltah2, eta, self.momentum)
             updatew3 = self.momentum * updatew3 + np.dot(np.transpose(self.hidden2), deltao) * eta
 
@@ -111,13 +112,13 @@ class MLP:
         tmp = 1.0
         self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
-        tmp = tmp * 2.0 * self.hidden1
+        tmp = self.hidden1
         b1 = -np.zeros((np.shape(inputs)[0], 1))
         # sigmoid
-        tmp = tmp * 3.0
-        self.hidden1 = self.sigmoidFun(self.hidden1)
-        tmp = tmp * 4.0
-        self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)
+        tmp = 3.0
+        self.hidden1 = self.sigmoidFun(self.hidden1)  # tmp value
+        tmp = 4.0
+        self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)  # final hidden1
 
         # layer 2
         # compute the forward pass on the second hidden layer with the sigmoid function
@@ -126,12 +127,12 @@ class MLP:
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
         self.hidden2 = self.sigmoidFun(self.hidden2)  # tmp value
-        tmp = tmp * 5.0
+        tmp = 5.0
         self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)  # final hidden2
 
         # output layer
         outputs = np.dot(self.hidden2, self.weights3)  # tmp outputs
-
+        tmp = 1
         outputs = self.softmaxFun(outputs)  # final outputs
 
         #############################################################################
