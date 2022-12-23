@@ -76,23 +76,16 @@ class MLP:
 
             # backward phase
             # Compute the derivative of the output layer. NOTE: you will need to compute the derivative of
-            # the softmax function. Hints: equation 4.55 in the book.
-            deltao = (self.outputs - targets) * self.outputs * (1 - self.outputs)
+            deltao = self.outputs * (1 - self.outputs) * (self.outputs - targets)
 
-            # compute the derivative of the second hidden layer
-            deltah2 = self.beta * self.delta_sigmoid(self.hidden2, deltao, self.weights3)
+            deltah2 = self.deltaSigmoid(self.hidden2, deltao, self.weights3) * self.beta
 
-            # compute the derivative of the first hidden layer
-            deltah1 = self.beta * self.hidden1 * (1.0 - self.hidden1) * (
-                np.dot(deltah2[:, :-1], np.transpose(self.weights2)))
+            deltah1 = (np.dot(deltah2[:, :-1], np.transpose(self.weights2))) * self.beta * self.hidden1 * (
+                    1.0 - self.hidden1)
 
-            # update the weights of the three layers: self.weights1, self.weights2 and self.weights3
-            # here you can update the weights as we did in the week 4 lab (using gradient descent)
-            # but you can also add the momentum
-            updatew1 = self.update_weights(updatew1, inputs, deltah1, eta, self.momentum)
-            updatew2 = self.update_weights(updatew2, self.hidden1, deltah2, eta, self.momentum)
-            # updatew3 = self.update_weights(updatew3,self.hidden2,deltao,eta,self.momentum)
-            updatew3 = eta * np.dot(np.transpose(self.hidden2), deltao) + self.momentum * updatew3
+            updatew1 = self.updateWeights(updatew1, inputs, deltah1, eta, self.momentum)
+            updatew2 = self.updateWeights(updatew2, self.hidden1, deltah2, eta, self.momentum)
+            updatew3 = self.momentum * updatew3 + np.dot(np.transpose(self.hidden2), deltao) * eta
 
             self.weights1 -= updatew1
             self.weights2 -= updatew2
@@ -115,26 +108,25 @@ class MLP:
 
         # layer 1
         # compute the forward pass on the first hidden layer with the sigmoid function
-        self.hidden1 = np.dot(inputs, self.weights1)  # (size[0],785) . (785,size[1]) = (size[0],size[1])
+        self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
         b1 = -np.zeros((np.shape(inputs)[0], 1))
-        # sigmoid
-        self.hidden1 = self.sigmoid_fun(self.hidden1)  # (size[0],size[1])
-        self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)  # (size[0],size[1]+1)
+        # sigmoid modify
+        tmp = self.sigmoidFun(self.hidden1)
+        self.hidden1 = np.concatenate((tmp, b1), axis=1)
 
         # layer 2
         # compute the forward pass on the second hidden layer with the sigmoid function
-        self.hidden2 = np.dot(self.hidden1, self.weights2)  # (size[0],size[1]) . (size[1],size[2]) = (size[0],size[2])
+        self.hidden2 = np.dot(self.hidden1, self.weights2)
         # add bias
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
-        self.hidden2 = self.sigmoid_fun(self.hidden2)  # (size[0],size[2])
-        self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)  # (size[0],size[2]+1)
+        tmp = self.sigmoidFun(self.hidden2)
+        self.hidden2 = np.concatenate((tmp, b2), axis=1)
 
         # output layer
-        # compute the forward pass on the output layer with softmax function
-        outputs = np.dot(self.hidden2, self.weights3)  # (9000,10)
-        outputs = self.softmax_fun(outputs)
+        tmp = np.dot(self.hidden2, self.weights3)  # (9000,10)
+        outputs = self.softmaxFun(tmp)
 
         #############################################################################
         # END of YOUR CODE
@@ -171,27 +163,27 @@ class MLP:
 
         return cm
 
-    # 激活函数
-    def sigmoid_fun(self, x):
-        x = self.beta * x
-        x = 1.0 / (1.0 + np.exp(-x))
-        return x
+    # update grade
+    def updateWeights(self, update_weights, value, delta, lr, momentum):
+        update_weights = lr * np.dot(np.transpose(value), delta[:, :-1]) + momentum * update_weights
+        return update_weights
 
-    # 分类器
-    def softmax_fun(self, x):
-        len = np.shape(x)[0]
-        N = np.sum(np.exp(x), axis=1) * np.ones((1, len))
-        x = np.exp(x)
-        x = np.transpose(x) / N
-        x = np.transpose(x)
-        return x
+    # classifier
+    def softmaxFun(self, value):
+        length = np.shape(value)[0]
+        N_val = np.ones((1, length)) * np.sum(np.exp(value), axis=1)
+        value = np.exp(value)
+        value = np.transpose(value) / N_val
+        value = np.transpose(value)
+        return value
 
-    # sigmoid求导
-    def delta_sigmoid(self, x, delta, w):
-        delta_ = self.beta * x * (1.0 - x) * (np.dot(delta, np.transpose(w)))
+    # activate method
+    def sigmoidFun(self, value):
+        value = self.beta * value
+        value = 1.0 / (1.0 + np.exp(-value))
+        return value
+
+    # sigmoid calculation
+    def deltaSigmoid(self, value, delta, w):
+        delta_ = self.beta * value * (1.0 - value) * (np.dot(delta, np.transpose(w)))
         return delta_
-
-    # 更新梯度
-    def update_weights(self, updatew, x, delta, lr, momentum):
-        updatew = lr * np.dot(np.transpose(x), delta[:, :-1]) + momentum * updatew
-        return updatew
