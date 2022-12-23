@@ -111,9 +111,9 @@ class MLP:
         self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
         b1 = -np.zeros((np.shape(inputs)[0], 1))
-        # sigmoid modify
-        tmp = self.sigmoidFun(self.hidden1)
-        self.hidden1 = np.concatenate((tmp, b1), axis=1)
+        # sigmoid
+        self.hidden1 = self.sigmoidFun(self.hidden1)
+        self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)
 
         # layer 2
         # compute the forward pass on the second hidden layer with the sigmoid function
@@ -121,12 +121,12 @@ class MLP:
         # add bias
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
-        tmp = self.sigmoidFun(self.hidden2)
-        self.hidden2 = np.concatenate((tmp, b2), axis=1)
+        self.hidden2 = self.sigmoidFun(self.hidden2)
+        self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)
 
         # output layer
-        tmp = np.dot(self.hidden2, self.weights3)  # (9000,10)
-        outputs = self.softmaxFun(tmp)
+        outputs = np.dot(self.hidden2, self.weights3)
+        outputs = self.softmaxFun(outputs)
 
         #############################################################################
         # END of YOUR CODE
