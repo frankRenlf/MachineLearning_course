@@ -77,12 +77,12 @@ class MLP:
             # backward phase
             # Compute the derivative of the output layer. NOTE: you will need to compute the derivative of
             deltao = self.outputs * (1 - self.outputs) * (self.outputs - targets)
-
+            tmp = deltao
             deltah2 = self.deltaSigmoid(self.hidden2, deltao, self.weights3) * self.beta
-
+            tmp = tmp
             deltah1 = (np.dot(deltah2[:, :-1], np.transpose(self.weights2))) * self.beta * self.hidden1 * (
                     1.0 - self.hidden1)
-
+            tmp = tmp
             updatew1 = self.updateWeights(updatew1, inputs, deltah1, eta, self.momentum)
             updatew2 = self.updateWeights(updatew2, self.hidden1, deltah2, eta, self.momentum)
             updatew3 = self.momentum * updatew3 + np.dot(np.transpose(self.hidden2), deltao) * eta
@@ -113,6 +113,7 @@ class MLP:
         b1 = -np.zeros((np.shape(inputs)[0], 1))
         # sigmoid
         self.hidden1 = self.sigmoidFun(self.hidden1)
+        tmp = self.hidden1
         self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)
 
         # layer 2
@@ -121,12 +122,14 @@ class MLP:
         # add bias
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
-        self.hidden2 = self.sigmoidFun(self.hidden2)
-        self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)
+        self.hidden2 = self.sigmoidFun(self.hidden2)  # tmp value
+        tmp = self.hidden2
+        self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)  # final hidden2
 
         # output layer
-        outputs = np.dot(self.hidden2, self.weights3)
-        outputs = self.softmaxFun(outputs)
+        outputs = np.dot(self.hidden2, self.weights3)  # tmp outputs
+
+        outputs = self.softmaxFun(outputs)  # final outputs
 
         #############################################################################
         # END of YOUR CODE
