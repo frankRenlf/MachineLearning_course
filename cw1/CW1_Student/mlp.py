@@ -111,7 +111,7 @@ class MLP:
         tmp = 1.0
         self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
-        tmp = tmp * 2.0
+        tmp = tmp * 2.0 * self.hidden1
         b1 = -np.zeros((np.shape(inputs)[0], 1))
         # sigmoid
         tmp = tmp * 3.0
