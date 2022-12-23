@@ -79,10 +79,10 @@ class MLP:
             deltao = self.outputs * (1 - self.outputs) * (self.outputs - targets)
             tmp = deltao
             deltah2 = self.deltaSigmoid(self.hidden2, deltao, self.weights3) * self.beta
-            tmp = tmp
+            tmp = tmp * 2.0
             deltah1 = (np.dot(deltah2[:, :-1], np.transpose(self.weights2))) * self.beta * self.hidden1 * (
                     1.0 - self.hidden1)
-            tmp = tmp
+            tmp = tmp * 3.0
             updatew1 = self.updateWeights(updatew1, inputs, deltah1, eta, self.momentum)
             updatew2 = self.updateWeights(updatew2, self.hidden1, deltah2, eta, self.momentum)
             updatew3 = self.momentum * updatew3 + np.dot(np.transpose(self.hidden2), deltao) * eta
@@ -108,12 +108,15 @@ class MLP:
 
         # layer 1
         # compute the forward pass on the first hidden layer with the sigmoid function
+        tmp = 1.0
         self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
+        tmp = tmp * 2.0
         b1 = -np.zeros((np.shape(inputs)[0], 1))
         # sigmoid
+        tmp = tmp * 3.0
         self.hidden1 = self.sigmoidFun(self.hidden1)
-        tmp = self.hidden1
+        tmp = tmp * 4.0
         self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)
 
         # layer 2
@@ -123,7 +126,7 @@ class MLP:
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
         self.hidden2 = self.sigmoidFun(self.hidden2)  # tmp value
-        tmp = self.hidden2
+        tmp = tmp * 5.0
         self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)  # final hidden2
 
         # output layer
