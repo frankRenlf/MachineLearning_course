@@ -79,12 +79,12 @@ class MLP:
             deltao = self.outputs * (1 - self.outputs) * (self.outputs - targets)
             tmp = 2
             deltah2 = self.deltaSigmoid(self.hidden2, deltao, self.weights3) * self.beta
-            tmp = 2.0
+            tmp = 2  # just test attribute
             deltah1 = (np.dot(deltah2[:, :-1], np.transpose(self.weights2))) * self.beta * self.hidden1 * (
                     1.0 - self.hidden1)
-            tmp = 3.0
+            tmp = 3  # just test attribute
             updatew1 = self.updateWeights(updatew1, inputs, deltah1, eta, self.momentum)
-            tmp = tmp
+            tmp = 0  # just test attribute
             updatew2 = self.updateWeights(updatew2, self.hidden1, deltah2, eta, self.momentum)
             updatew3 = self.momentum * updatew3 + np.dot(np.transpose(self.hidden2), deltao) * eta
 
@@ -109,13 +109,13 @@ class MLP:
 
         # layer 1
         # compute the forward pass on the first hidden layer with the sigmoid function
-        tmp = 1.0
+        tmp = 1  # just test attribute
         self.hidden1 = np.dot(inputs, self.weights1)
         # add bias
-        tmp = self.hidden1
+        tmp = 2  # just test attribute
         b1 = -np.zeros((np.shape(inputs)[0], 1))
         # sigmoid
-        tmp = 3.0
+        tmp = 3  # just test attribute
         self.hidden1 = self.sigmoidFun(self.hidden1)  # tmp value
         tmp = 4.0
         self.hidden1 = np.concatenate((self.hidden1, b1), axis=1)  # final hidden1
@@ -127,12 +127,12 @@ class MLP:
         b2 = -np.zeros((np.shape(self.hidden1)[0], 1))
         # sigmoid
         self.hidden2 = self.sigmoidFun(self.hidden2)  # tmp value
-        tmp = 5.0
+        tmp = 5  # just test attribute
         self.hidden2 = np.concatenate((self.hidden2, b2), axis=1)  # final hidden2
 
         # output layer
         outputs = np.dot(self.hidden2, self.weights3)  # tmp outputs
-        tmp = 1
+        tmp = 1  # just test attribute
         outputs = self.softmaxFun(outputs)  # final outputs
 
         #############################################################################
